@@ -13,12 +13,11 @@ public:
 		this->rect->y = y;
 		this->rect->w = 40;
 		this->rect->h = 40;
-		this->pos.x = x;
-		this->pos.y = y;
+		this->pos = getVecFromRect(*this->rect);
 	}
 
 	void repositionFood() {
 		this->rect->x += 120;
-		this->pos.x += 120;
+		this->pos = getVecFromRect(*this->rect);
 	}
 };

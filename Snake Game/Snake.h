@@ -17,8 +17,7 @@ public:
 	void update() {
 		this->rect->x += dir.x;
 		this->rect->y += dir.y;
-		this->pos.x += dir.x;
-		this->pos.y += dir.y;
+		this->pos = getVecFromRect(*this->rect);
 
 		this->prevDir = dir;
 	}

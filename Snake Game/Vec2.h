@@ -1,5 +1,7 @@
 #pragma once
 
+#import "SDL.h"
+
 class Vec2 {
 public:
 	int x;
@@ -16,3 +18,8 @@ public:
 		return (x == obj.x && y == obj.y);
 	}
 };
+
+Vec2 getVecFromRect(SDL_Rect rect) 
+{
+	return Vec2(rect.x, rect.y);
+}
