@@ -16,6 +16,16 @@ public:
 	void update() {
 		this->rect->x += dir.x;
 		this->rect->y += dir.y;
+
+		if (this->rect->x > 680)
+			this->rect->x = 0;
+		if (this->rect->x < 0)
+			this->rect->x = 680;
+		if (this->rect->y > 440)
+			this->rect->y = 0;
+		if (this->rect->y < 0)
+			this->rect->y = 440;
+
 		this->pos = getVecFromRect(*this->rect);
 
 		this->prevDir = dir;
