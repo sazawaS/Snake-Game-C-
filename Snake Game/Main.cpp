@@ -4,28 +4,22 @@
 
 #include "SDL.h"
 
-#include "SnakePart.h"
+#include "Snake.h"
+#include "Food.h"
 
 
-std::vector<SnakePart> snake = { };
-std::vector<std::string> inputList = {};
-SDL_Rect* foodRect = new SDL_Rect();
+std::vector<char*> inputList = {};
+std::vector<Food*> foodList = {};
 
-void createNewSnakePart(int x, int y, int dirX, int dirY);
-void render(SDL_Window* window, SDL_Renderer* renderer);
-void update();
+void render(SDL_Window* window, SDL_Renderer* renderer, Snake* snake);
+void update(Snake* snake);
 
 int main(int argc, char* args[]) {
 
-	createNewSnakePart(40, 40, 40, 0);
-	createNewSnakePart(0, 40, 40, 0);
-	createNewSnakePart(-40, 40, 40, 0);
+	Snake* snake = new Snake();
+	snake->init(40, 40, 40, 0);
+	foodList.push_back( new Food(40, 120));
 
-
-	foodRect->x = (40);
-	foodRect->y = (40);
-	foodRect->w = 40;
-	foodRect->h = 40;
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Window* window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 680, 440, SDL_WINDOW_SHOWN);
@@ -54,27 +48,28 @@ int main(int argc, char* args[]) {
 					break;
 				}
 
-
-
-				if (event.key.keysym.sym == SDLK_UP) {
-					inputList.push_back("up");
-				}
-				else if (event.key.keysym.sym == SDLK_DOWN) {
-					inputList.push_back("down");
-				}
-				else if (event.key.keysym.sym == SDLK_RIGHT) {
-					inputList.push_back("right");
-				}
-				else if (event.key.keysym.sym == SDLK_LEFT) {
-					inputList.push_back("left");
-				}
+				if (event.key.keysym.sym == SDLK_UP)
+					inputList.push_back( (char*) "up");
+				else if (event.key.keysym.sym == SDLK_DOWN)
+					inputList.push_back( (char*) "down");
+				else if (event.key.keysym.sym == SDLK_RIGHT)
+					inputList.push_back( (char*) "right");
+				else if (event.key.keysym.sym == SDLK_LEFT)
+					inputList.push_back( (char*) "left");
 
 			}
 		}
 
 		if (delta > 1000/4) {
-			update();
-			render(window, renderer);
+
+			if (inputList.size() >= 1) {
+				snake->inputSnake(inputList[inputList.size() - 1]);
+				inputList.clear();
+			}
+			snake->updateSnake();
+
+			update(snake);
+			render(window, renderer, snake);
 
 			b = SDL_GetTicks();
 		}
@@ -92,70 +87,17 @@ int main(int argc, char* args[]) {
 }
 
 
-
-void createNewSnakePart(int x, int y, int dirX, int dirY) {
-	SnakePart newSnakePart;
-	newSnakePart.dirX = dirX;
-	newSnakePart.dirY = dirY;
-
-	newSnakePart.rect = new SDL_Rect();
-	newSnakePart.rect->x = x;
-	newSnakePart.rect->y = y;
-	newSnakePart.rect->w = 40;
-	newSnakePart.rect->h = 40;
-
-	snake.push_back(newSnakePart);
-}
-
-void placeFood() {
-	foodRect->x += 80;
-
-}
-
-void update()
+void update(Snake* snake)
 {
 
+	for (int i = 0; i < foodList.size(); i++) {
 
+		std::cout << (snake->snakeParts[0].pos.x) << " " << snake->snakeParts[0].pos.y << std::endl;
 
-
-	if (inputList.size() >= 1) {
-		if (inputList[inputList.size() - 1] == "up" && snake[0].dirY != 40) {
-			snake[0].dirX = 0;
-			snake[0].dirY = -40;
+		if (snake->snakeParts[0].pos.x == foodList[i]->pos.x && snake->snakeParts[0].pos.y == foodList[i]->pos.y) {
+			foodList[i]->repositionFood();
+			snake->eat();
 		}
-		else if (inputList[inputList.size() - 1] == "down" && snake[0].dirY != -40) {
-			snake[0].dirX = 0;
-			snake[0].dirY = 40;
-		}
-		else if (inputList[inputList.size() - 1] == "right" && snake[0].dirX != -40) {
-			snake[0].dirX = 40;
-			snake[0].dirY = 0;
-		}
-		else if (inputList[inputList.size() - 1] == "left" && snake[0].dirX != 40) {
-			snake[0].dirX = -40;
-			snake[0].dirY = 0;
-		}
-
-		inputList.clear();
-	}
-
-	for (int i = 0; i < snake.size(); i++) {
-		snake[i].rect->x += snake[i].dirX;
-		snake[i].rect->y += snake[i].dirY;
-		snake[i].prevDirX = snake[i].dirX;
-		snake[i].prevDirY = snake[i].dirY;
-
-		if (i > 0) {
-			snake[i].dirX = snake[i - 1].prevDirX;
-			snake[i].dirY = snake[i - 1].prevDirY;
-		}
-	}
-
-	if (snake[0].rect->x == foodRect->x && snake[0].rect->y == foodRect->y) {
-
-		placeFood();
-		SnakePart tail = snake[snake.size() - 1];
-		createNewSnakePart(tail.rect->x - tail.dirX, tail.rect->y - tail.dirY, tail.dirX, tail.dirY);
 	}
 
 
@@ -163,7 +105,7 @@ void update()
 }
 
 
-void render(SDL_Window* window, SDL_Renderer* renderer) 
+void render(SDL_Window* window, SDL_Renderer* renderer, Snake* snake) 
 {
 
 	//Background
@@ -173,17 +115,19 @@ void render(SDL_Window* window, SDL_Renderer* renderer)
 	//Elements
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-	SDL_Rect foodCopy = *foodRect;
-	foodCopy.x += 5;
-	foodCopy.y += 5;
-	foodCopy.w -= 10;
-	foodCopy.h -= 10;
+	for (int i = 0; i < foodList.size(); i++) {
+		SDL_Rect foodCopy = *foodList[i]->rect;
+		foodCopy.x += 5;
+		foodCopy.y += 5;
+		foodCopy.w -= 10;
+		foodCopy.h -= 10;
 
-	SDL_RenderFillRect(renderer, &foodCopy);
+		SDL_RenderFillRect(renderer, &foodCopy);
+	}
 
-	for (int i = 0; i < snake.size(); i++) {
+	for (int i = 0; i < snake->snakeParts.size(); i++) {
 
-		SDL_Rect rectCopy = *snake[i].rect;
+		SDL_Rect rectCopy = *snake->snakeParts[i].rect;
 		rectCopy.h -= 2;
 		rectCopy.w -= 2;
 
