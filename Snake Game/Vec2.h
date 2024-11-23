@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL.h"
+#include <iostream>
 
 class Vec2 {
 public:
@@ -16,6 +17,10 @@ public:
 	bool operator==(Vec2 const& obj)
 	{
 		return (x == obj.x && y == obj.y);
+	}
+
+	void log() {
+		std::cout << "X: " << this->x << " Y: " << this->y << std::endl;
 	}
 };
 
