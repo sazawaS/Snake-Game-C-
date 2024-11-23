@@ -92,10 +92,8 @@ void update(Snake* snake)
 
 	for (int i = 0; i < foodList.size(); i++) {
 
-		std::cout << (snake->snakeParts[0].pos.x) << " " << snake->snakeParts[0].pos.y << std::endl;
-
 		if (snake->snakeParts[0].pos.x == foodList[i]->pos.x && snake->snakeParts[0].pos.y == foodList[i]->pos.y) {
-			foodList[i]->repositionFood();
+			foodList[i]->repositionFood(*snake);
 			snake->eat();
 		}
 	}

@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "Vec2.h"
-#include "Food.h"
 
 class SnakePart {
 public:
