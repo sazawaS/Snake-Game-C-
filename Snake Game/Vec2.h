@@ -1,6 +1,6 @@
 #pragma once
 
-#import "SDL.h"
+#include "SDL.h"
 
 class Vec2 {
 public:
